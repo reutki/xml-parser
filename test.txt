@@ -1,0 +1,19 @@
+initial: 
+<xsl:if test="//CB935-IO-VOCIG/CB935-RIGA[CB935-V = '{VAR1}']/CB935-{VAR2}!=''">
+<xsl:attribute name="value">
+<xsl:value-of select="user:punti(//CB935-IO-VOCIG/CB935-RIGA[CB935-V = '{VAR1}']/CB935-{VAR2})"/>
+</xsl:attribute>
+</xsl:if>
+
+
+rezultat: 
+<xsl:attribute name="value">
+Test: <xsl:value-of select="//CB935-IO-VOCIG/CB935-RIGA[CB935-V = '{VAR1}']/CB935-{VAR2}"/>
+</xsl:attribute>
+
+de facut un replace;
+2 text are cu input si exemplu ce rezultat doresc
+
+var1 si var2 sa fie gasite automat;
+
+*de dorit sa pastreze taburile si spacing;
