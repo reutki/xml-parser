@@ -1,4 +1,4 @@
-const mainFile = `<tr class="voce" id="TEST1" tot="TEST2" segno="+">
+var mainFile = `<tr class="voce" id="TEST1" tot="TEST2" segno="+">
     <td> III) TEST3</td>
     <td align="right" style="padding-right:3px">
         <input  maxlength="13" style="width:100px" col="1">
@@ -43,6 +43,11 @@ const input = `<xsl:if test="//CB935-IO-VOCIG/CB935-RIGA[CB935-V = '{VAR1}']/CB9
                 <xsl:value-of select="user:punti(//CB935-IO-VOCIG/CB935-RIGA[CB935-V = '{VAR5}']/CB935-{VAR6})"/>
                 </xsl:attribute>
                 </xsl:if>`;
+
+mainFile = mainFile.replaceAll("\n", "")
+mainFile = mainFile.replaceAll("\t", "")
+
+
 function extractVariables(line) {
   const regex = /\{[A-Za-z0-9]+\}/g;
   const assignments = {};
@@ -52,19 +57,36 @@ function extractVariables(line) {
     const variable = match[1];
     const value = match[2];
     assignments[variable] = value;
-    console.log(mainFile[match.index]);
+    findIndex(match.input.slice(0, match.index), match.index)
+    // console.log(match.input.slice(0, match.index))
   }
 
   return assignments;
 }
 
 const mainLines = mainFile.split('\n');
+// console.log(mainLines)
 const inputLines = input.split('\n');
+console.log(inputLines);
 
 const variableDifferences = {};
 inputLines.forEach((inputLine, inputLineIndex) => {
   const inputAssignments = extractVariables(inputLine);
 
 })
+
+function findIndex(str, index) {
+  let lines = mainFile.split(/\s{3}/)
+  lines = lines.map((element) => element.trim() )
+  lines = lines.filter((element) => element != "")
+  for (let line of mainFile.split(/\s{3}/)) {
+    // console.log("Line: ", line)
+    if (line.startsWith(str)) {
+      console.log(line);
+      console.log(line.slice(index))
+    }
+  }
+  // console.log(lines);
+}
 
 console.log(variableDifferences);
