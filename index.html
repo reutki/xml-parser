@@ -7,18 +7,23 @@
     <title>Code Formatter</title>
 </head>
 <body>
-  
+    <label>Where to look for</label>
+    <input id="fileInput" type="file"/>
     <label for="parseTemplate">
         Generic code:
     </label>  
     <textarea id="parseTemplate" name="parseTemplate"></textarea>
-    <button class="tfmBtn" onclick="transformCode()">Transform</button>
+
+    <button class="tfmBtn" onclick="highlightChanges()">Transform</button>
     <label for="resultTemplate">
        Result:
     </label>  
     <textarea id="resultTemplate"  name="resultTemplate"></textarea>
-    <label>Where to look for</label>
-    <input id="fileInput" type="file"/>
+
+
 </body>
 <script src='/index.js'></script>
+
 </html>
+
+

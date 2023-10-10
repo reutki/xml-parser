@@ -24,11 +24,9 @@ textarea {
     border: 1px solid #ccc;
     border-radius: 5px;
     resize: vertical;
-    min-height: 200px;
 }
 
 textarea#formattedCode {
-    min-height: 300px; /* Adjust as needed */
 }
 
 /* Optional: Add some additional styling to make it visually appealing */

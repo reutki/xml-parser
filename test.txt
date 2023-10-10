@@ -1,4 +1,11 @@
 initial: 
+<xsl:if test="//CB935-IO-VOCIG/CB935-RIGA[CB935-V = 'asdasd']/CB935-sadasd!=''">
+<xsl:attribute name="value">
+<xsl:value-of select="user:punti(//CB935-IO-VOCIG/CB935-RIGA[CB935-V = 'asda']/CB935-asda)"/>
+</xsl:attribute>
+</xsl:if>
+
+input:
 <xsl:if test="//CB935-IO-VOCIG/CB935-RIGA[CB935-V = '{VAR1}']/CB935-{VAR2}!=''">
 <xsl:attribute name="value">
 <xsl:value-of select="user:punti(//CB935-IO-VOCIG/CB935-RIGA[CB935-V = '{VAR1}']/CB935-{VAR2})"/>
@@ -6,10 +13,30 @@ initial:
 </xsl:if>
 
 
+how to find this piece of text? 
+replace(doc.value,var)
+
+
 rezultat: 
 <xsl:attribute name="value">
 Test: <xsl:value-of select="//CB935-IO-VOCIG/CB935-RIGA[CB935-V = '{VAR1}']/CB935-{VAR2}"/>
 </xsl:attribute>
+
+	<td align="right" style="padding-right:3px">
+		<input  maxlength="13" style="width:100px" col="1">
+			<xsl:if test="//CB935-O-TPFUNZ='I'">
+				<xsl:attribute name="readOnly">true</xsl:attribute>	
+			</xsl:if>										
+			<xsl:attribute name="class"><xsl:value-of select="$in1"/></xsl:attribute>
+			<xsl:attribute name="onKeyDown">zero(this)</xsl:attribute>
+			<xsl:attribute name="onBlur">campoValorizzato(this)</xsl:attribute>
+			<xsl:if test="//CB935-IO-VOCIG/CB935-RIGA[CB935-V = 'G01530']/CB935-V1!=''">
+				<xsl:attribute name="value">
+					<xsl:value-of select="user:punti(//CB935-IO-VOCIG/CB935-RIGA[CB935-V = 'G01530']/CB935-V1)"/>
+				</xsl:attribute>
+			</xsl:if>										
+		</input>
+	</td>
 
 de facut un replace;
 2 text are cu input si exemplu ce rezultat doresc
