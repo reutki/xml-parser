@@ -1,92 +1,130 @@
-var mainFile = `<tr class="voce" id="TEST1" tot="TEST2" segno="+">
-    <td> III) TEST3</td>
-    <td align="right" style="padding-right:3px">
-        <input  maxlength="13" style="width:100px" col="1">
-            <xsl:if test="//CB935-O-TPFUNZ='I'">
-                <xsl:attribute name="readOnly">true</xsl:attribute>
-            </xsl:if>
-            <xsl:attribute name="class"><xsl:value-of select="$in1"/></xsl:attribute>
-            <xsl:attribute name="onKeyDown">zero(this)</xsl:attribute>
-            <xsl:attribute name="onBlur">campoValorizzato(this)</xsl:attribute>
-            <xsl:if test="//CB935-IO-VOCIG/CB935-RIGA[CB935-V = 'G01530']/CB935-V1!=''">
-                <xsl:attribute name="value">
-                    <xsl:value-of select="user:punti(//CB935-IO-VOCIG/CB935-RIGA[CB935-V = 'G01530']/CB935-V1)"/>
-                </xsl:attribute>
-            </xsl:if>
-        </input>
-    </td>
-    <td align="right" style="padding-right:3px">
-        <input maxlength="13" style="width:100px" readonly="true" col="2" disabled="true">
-            <xsl:attribute name="class"><xsl:value-of select="$in2"/></xsl:attribute>
-            <xsl:attribute name="onKeyDown">zero(this)</xsl:attribute>
-            <xsl:attribute name="onBlur">campoValorizzato(this)</xsl:attribute>
-            <xsl:if test="//CB935-IO-VOCIG/CB935-RIGA[CB935-V = 'G01530']/CB935-V2!=''">
-                <xsl:attribute name="value">
-                    <xsl:value-of select="user:punti(//CB935-IO-VOCIG/CB935-RIGA[CB935-V = 'G01530']/CB935-V2)"/>
-                </xsl:attribute>
-            </xsl:if>
-        </input>
-    </td>
-    <td align="right" style="padding-right:3px">
-        <input class="input_finto" style="width:100px" disabled="true" col="3">
-        <xsl:if test="//CB935-IO-VOCIG/CB935-RIGA[CB935-V = 'G01530']/CB935-V3!=''">
-            <xsl:attribute name="value">
-                <xsl:value-of select="user:punti(//CB935-IO-VOCIG/CB935-RIGA[CB935-V = 'G01530']/CB935-V3)"/>
-            </xsl:attribute>
-        </xsl:if>
-        </input>
-    </td>
-</tr>`;
 
-const input = `<xsl:if test="//CB935-IO-VOCIG/CB935-RIGA[CB935-V = '{VAR1}']/CB935-{VAR2}!=''">
-                <xsl:attribute name="value">
-                <xsl:value-of select="user:punti(//CB935-IO-VOCIG/CB935-RIGA[CB935-V = '{VAR5}']/CB935-{VAR6})"/>
-                </xsl:attribute>
-                </xsl:if>`;
-
-mainFile = mainFile.replaceAll("\n", "")
-mainFile = mainFile.replaceAll("\t", "")
+var fileElement = document.getElementById("fileInput");
+var resultTemplate = document.getElementById("resultTemplate").value;
 
 
+function readFileAsync(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    
+    reader.onload = function() {
+      resolve(reader.result);
+    };
+
+    reader.onerror = function() {
+      reject(reader.error);
+    };
+
+    reader.readAsText(file);
+  });
+}
+
+async function transformCode() {
+  try {
+    const file = fileElement.files[0];
+    const fileContent = await readFileAsync(file);
+    
+    return fileContent;
+  } catch (error) {
+    console.error('Error reading the file:', error);
+  }
+}
+
+async function main (){
+  var input = document.getElementById("parseTemplate").value;
+  var mainFile = await transformCode()
+  mainFile = mainFile.replaceAll("\n", "")
+  mainFile = mainFile.replaceAll("\t", "")
+  input = input.replaceAll("\n", "")
+  input = input.replaceAll("\t", "")
+  
+  
+  function clear(file){
+    let lines = file.replaceAll(/\s{3}/g,"")
+    return lines
+  }
+  
+  mainFile=clear(mainFile);
+  input=clear(input);
+  
+
+const variableIndexes = []
+const variableValues = []
 function extractVariables(line) {
   const regex = /\{[A-Za-z0-9]+\}/g;
-  const assignments = {};
+
   let match;
-
   while ((match = regex.exec(line)) !== null) {
-    const variable = match[1];
-    const value = match[2];
-    assignments[variable] = value;
-    findIndex(match.input.slice(0, match.index), match.index)
-    // console.log(match.input.slice(0, match.index))
+    const variable = match[0];
+    const index = match.index;
+    if(variableIndexes)
+    variableIndexes.push({variable,index})
   }
-
-  return assignments;
+  return variableIndexes;
 }
 
-const mainLines = mainFile.split('\n');
-// console.log(mainLines)
-const inputLines = input.split('\n');
-console.log(inputLines);
 
-const variableDifferences = {};
-inputLines.forEach((inputLine, inputLineIndex) => {
-  const inputAssignments = extractVariables(inputLine);
+function regexGenerator(file){
 
-})
+j = variableIndexes[variableIndexes.length-1]
+st = j.index + j.variable.length
+end= input.substring(st,file.length);
+index = 0;
+const res=[];
+ variableIndexes.forEach((variable)=>{
+  res.push( input.substring(index,variable.index));
+  index=variable.index+variable.variable.length;
 
-function findIndex(str, index) {
-  let lines = mainFile.split(/\s{3}/)
-  lines = lines.map((element) => element.trim() )
-  lines = lines.filter((element) => element != "")
-  for (let line of mainFile.split(/\s{3}/)) {
-    // console.log("Line: ", line)
-    if (line.startsWith(str)) {
-      console.log(line);
-      console.log(line.slice(index))
+ })
+ res.push(end)
+ response = res.map(el=>el.replace(/\s+/g, ' ').replace(/>\s+</g, '><'))
+
+ return [res.map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s*')).join("[A-Za-z0-9]*"),response ];
+}
+
+function extractValuesMain(file) {
+  const [regexInPattern, allStrings] = regexGenerator(input);
+  const regex = new RegExp(regexInPattern, 'g');
+  var matches = [];
+  let match;
+  while ((match = regex.exec(file)) !== null) {
+    matches.push(match[0]);
+  }
+  matches=matches.map(el=>el.replace(/>\s+</g, '><'))
+  for(let i=0; i<allStrings.length;i++){
+    for(let k=0;k<matches.length;k++){
+      matches[k]=matches[k].replace(allStrings[i],",")
     }
   }
-  // console.log(lines);
+  return matches;
+}
+const inputLines = input.split('\n');
+
+inputLines.forEach((inputLine) => {
+ extractVariables(inputLine);
+})
+
+
+
+var values;
+var result = {};
+const matches = extractValuesMain(mainFile);
+values = matches.map((el, i) => {
+  return el.split(',').filter(value => value != '');
+});
+
+values.forEach((arr, i) => {
+  const iterationResult = {};
+
+  arr.forEach((str, t) => {
+    variableIndexes.forEach((variable, k) => {
+      iterationResult[`${variable.variable}`] = arr[k];
+    });
+  });
+
+  result[`line${i + 1}`] = iterationResult;
+});
+return result
 }
 
-console.log(variableDifferences);
+
