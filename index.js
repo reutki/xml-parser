@@ -1,6 +1,6 @@
 
 var fileElement = document.getElementById("fileInput");
-var resultTemplate = document.getElementById("resultTemplate").value;
+var resultTemplate = document.getElementById("resultTemplate");
 
 
 function readFileAsync(file) {
@@ -35,12 +35,13 @@ async function main (){
   var mainFile = await transformCode()
   mainFile = mainFile.replaceAll("\n", "")
   mainFile = mainFile.replaceAll("\t", "")
+  mainFile = mainFile.replaceAll("/\s+/g", "")
   input = input.replaceAll("\n", "")
   input = input.replaceAll("\t", "")
   
   
   function clear(file){
-    let lines = file.replaceAll(/\s{3}/g,"")
+    let lines = file.replaceAll(/>\s+</g, '><')
     return lines
   }
   
@@ -79,12 +80,14 @@ const res=[];
  res.push(end)
  response = res.map(el=>el.replace(/\s+/g, ' ').replace(/>\s+</g, '><'))
 
- return [res.map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s*')).join("[A-Za-z0-9]*"),response ];
+ return [res.map((part) => part.replace(/[.*+?^${}()|[\]\\/-]/g, '\\$&').replace(/\s+/g, '\\s*')).join("[A-Za-z0-9]*"),response ];
 }
 
 function extractValuesMain(file) {
   const [regexInPattern, allStrings] = regexGenerator(input);
+
   const regex = new RegExp(regexInPattern, 'g');
+  console.log('reg:',regex);
   var matches = [];
   let match;
   while ((match = regex.exec(file)) !== null) {
@@ -105,6 +108,7 @@ inputLines.forEach((inputLine) => {
 })
 
 
+console.log('file:',mainFile);
 
 var values;
 var result = {};
@@ -123,8 +127,9 @@ values.forEach((arr, i) => {
   });
 
   result[`line${i + 1}`] = iterationResult;
+  console.log(iterationResult);
 });
-return result
+resultTemplate.value =JSON.stringify(result);
 }
 
 

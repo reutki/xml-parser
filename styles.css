@@ -24,12 +24,9 @@ textarea {
     border: 1px solid #ccc;
     border-radius: 5px;
     resize: vertical;
+    min-height: 10%;
 }
 
-textarea#formattedCode {
-}
-
-/* Optional: Add some additional styling to make it visually appealing */
 textarea#userCode {
     background-color: #fff;
 }
@@ -38,14 +35,12 @@ textarea#formattedCode {
     background-color: #f7f7f7;
 }
 
-/* Center the textareas on smaller screens */
 @media (max-width: 768px) {
     textarea {
         width: 95%;
     }
 }
-/* Basic Button Style */
-.tfmBtn {
+.btn {
     margin:10px;
     display: inline-block;
     padding: 10px 20px;
@@ -53,8 +48,8 @@ textarea#formattedCode {
     font-weight: bold;
     text-align: center;
     text-decoration: none;
-    background-color: #007bff; /* Change to your desired button color */
-    color: #fff; /* Text color */
+    background-color: #007bff;
+    color: #fff; 
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -62,6 +57,18 @@ textarea#formattedCode {
 }
 
 .tfmBtn:hover {
-    background-color: #0056b3; /* Change to your desired hover color */
+    background-color: #0056b3; 
 }
-
+.fileInput{
+        background-color: #3498db;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        width: 100%;
+        
+@media (max-width: 768px) {
+        width: 95%;
+}}

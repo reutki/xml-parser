@@ -5,21 +5,11 @@ initial:
 </xsl:attribute>
 </xsl:if>
 
-input:
-<xsl:if test="//CB935-IO-VOCIG/CB935-RIGA[CB935-V = '{VAR1}']/CB935-{VAR2}!=''">
-<xsl:attribute name="value">
-<xsl:value-of select="user:punti(//CB935-IO-VOCIG/CB935-RIGA[CB935-V = '{VAR1}']/CB935-{VAR2})"/>
-</xsl:attribute>
-</xsl:if>
-
-
-how to find this piece of text? 
-replace(doc.value,var)
 
 
 rezultat: 
 <xsl:attribute name="value">
-Test: <xsl:value-of select="//CB935-IO-VOCIG/CB935-RIGA[CB935-V = '{VAR1}']/CB935-{VAR2}"/>
+<xsl:value-of select="//CB935-IO-VOCIG/CB935-RIGA[CB935-V = '{VAR1}']/CB935-{VAR2}"/>
 </xsl:attribute>
 
 	<td align="right" style="padding-right:3px">
