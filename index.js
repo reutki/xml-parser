@@ -3,6 +3,7 @@ var fileElement = document.getElementById("fileInput");
 var resultTemplate = document.getElementById("resultTemplate");
 
 
+//reads the file
 function readFileAsync(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -19,6 +20,8 @@ function readFileAsync(file) {
   });
 }
 
+
+//returns the file as text
 async function transformCode() {
   try {
     const file = fileElement.files[0];
@@ -30,29 +33,33 @@ async function transformCode() {
   }
 }
 
+//the main function
 async function main (){
   var input = document.getElementById("parseTemplate").value;
   var mainFile = await transformCode()
   mainFile = mainFile.replaceAll("\n", "")
   mainFile = mainFile.replaceAll("\t", "")
   mainFile = mainFile.replaceAll("/\s+/g", "")
+
+  //remove the newlines&tabs
   input = input.replaceAll("\n", "")
   input = input.replaceAll("\t", "")
   
-  
-  function clear(file){
+  //removes spaces between tags
+  function clearSpaces(file){
     let lines = file.replaceAll(/>\s+</g, '><')
     return lines
   }
+//remove spaces between tags in the file and the input
+  mainFile=clearSpaces(mainFile);
+  input=clearSpaces(input);
   
-  mainFile=clear(mainFile);
-  input=clear(input);
-  
-
+//store the indexes of the variables found
 const variableIndexes = []
-const variableValues = []
+
+//extracts variables from the code --> |variable| <--
 function extractVariables(line) {
-  const regex = /\{[A-Za-z0-9]+\}/g;
+  const regex = /\|[A-Za-z0-9]+\|/g;
 
   let match;
   while ((match = regex.exec(line)) !== null) {
@@ -66,7 +73,6 @@ function extractVariables(line) {
 
 
 function regexGenerator(file){
-
 j = variableIndexes[variableIndexes.length-1]
 st = j.index + j.variable.length
 end= input.substring(st,file.length);
@@ -80,7 +86,7 @@ const res=[];
  res.push(end)
  response = res.map(el=>el.replace(/\s+/g, ' ').replace(/>\s+</g, '><'))
 
- return [res.map((part) => part.replace(/[.*+?^${}()|[\]\\/-]/g, '\\$&').replace(/\s+/g, '\\s*')).join("[A-Za-z0-9]*"),response ];
+ return [res.map((part) => part.replace(/[.*+?^${}()|[\]\\/-]/g, '\\$&').replace(/\s+/g, '\\s*')).join(`[\\W\\w\\d]*?(?=[\(\)'<>{}[\\]\\s"])|(?=(-->|<--))`),response ];
 }
 
 function extractValuesMain(file) {
@@ -108,7 +114,6 @@ inputLines.forEach((inputLine) => {
 })
 
 
-console.log('file:',mainFile);
 
 var values;
 var result = {};
@@ -131,5 +136,7 @@ values.forEach((arr, i) => {
 });
 resultTemplate.value =JSON.stringify(result);
 }
+
+
 
 
