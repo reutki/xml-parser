@@ -37,12 +37,12 @@ async function transformCode() {
 async function main (){
   var input = document.getElementById("parseTemplate").value;
   var mainFile = await transformCode()
-  mainFile = mainFile.replaceAll("\n", "")
+  // mainFile = mainFile.replaceAll("\n", "")
   mainFile = mainFile.replaceAll("\t", "")
-  mainFile = mainFile.replaceAll("/\s+/g", "")
+  // mainFile = mainFile.replaceAll("/\s+/g", "")
 
   //remove the newlines&tabs
-  input = input.replaceAll("\n", "")
+  // input = input.replaceAll("\n", "")
   input = input.replaceAll("\t", "")
   
   //removes spaces between tags
@@ -51,8 +51,8 @@ async function main (){
     return lines
   }
 //remove spaces between tags in the file and the input
-  mainFile=clearSpaces(mainFile);
-  input=clearSpaces(input);
+  // mainFile=clearSpaces(mainFile);
+  // input=clearSpaces(input);
   
 //store the indexes of the variables found
 const variableIndexes = []
@@ -75,36 +75,58 @@ function extractVariables(line) {
 function regexGenerator(file){
 j = variableIndexes[variableIndexes.length-1]
 st = j.index + j.variable.length
-end= input.substring(st,file.length);
+end= input.substring(st,file.length-1);
 index = 0;
-const res=[];
+var res=[];
  variableIndexes.forEach((variable)=>{
   res.push( input.substring(index,variable.index));
   index=variable.index+variable.variable.length;
 
  })
  res.push(end)
+ console.log(res);
  response = res.map(el=>el.replace(/\s+/g, ' ').replace(/>\s+</g, '><'))
 
- return [res.map((part) => part.replace(/[.*+?^${}()|[\]\\/-]/g, '\\$&').replace(/\s+/g, '\\s*')).join(`[\\W\\w\\d]*?(?=[\(\)'<>{}[\\]\\s"])|(?=(-->|<--))`),response ];
+ var regexInput = document.getElementById("regex").value;
+ 
+ return [res.map((part) => part.replace(/[.*+?^${}()|[\]\\/-]/g, '\\$&').replace(/\s+/g, '\\s*')).join(`[\\W\\w\\d]*((?=.)|(?=(-->|<--)))`),response ];
+//[\W\w\d]*(?=[()'<>{}\[\]\s])|(?=(-->|<--)) -> returns only 1 line
+//\\W\\w\\d]*((?=.)|(?=(-->|<--)))
+// res.map((part) => part.replace(/[.*+?^${}()|[\]\\/-]/g, '\\$&').replace(/\s+/g, '\\s*'))
+// console.log(res[res.length-1])
+// res[res.length-1] = "(?=(" + res[res.length-1].replaceAll("\n", '') + "))" 
+// console.log(res[res.length-1])
+// res = res.join("[\\W\\w\\d]*((?=.)|(?=(-->|<--)))")
+// return [res, response]
+ //  return [res.map((part) => part.replace(/[.*+?^${}()|[\]\\/-]/g, '\\$&').replace(/\s+/g, '\\s*')).join(`[\\W\\w\\d]*?(?=[\(\)'<>{}[\\]\\s"])|(?=(-->|<--))`),response ];
 }
 
 function extractValuesMain(file) {
   const [regexInPattern, allStrings] = regexGenerator(input);
-
+  const fileSplit = file.split('\r')
+  console.log(fileSplit);
   const regex = new RegExp(regexInPattern, 'g');
   console.log('reg:',regex);
   var matches = [];
   let match;
-  while ((match = regex.exec(file)) !== null) {
-    matches.push(match[0]);
+  for(let x=0;x<fileSplit.length;x++){
+    fileSplit[x] = fileSplit[x].replaceAll("/\s+/g", "")
+    while ((match = regex.exec(fileSplit[x])) !== null) {
+      matches.push(match[0]);
+    }
   }
+  
+  // while ((match = regex.exec(file)) !== null) {
+  //   matches.push(match[0]);
+  // }
   matches=matches.map(el=>el.replace(/>\s+</g, '><'))
   for(let i=0; i<allStrings.length;i++){
     for(let k=0;k<matches.length;k++){
       matches[k]=matches[k].replace(allStrings[i],",")
     }
   }
+
+  console.log(matches);
   return matches;
 }
 const inputLines = input.split('\n');
@@ -131,7 +153,7 @@ values.forEach((arr, i) => {
     });
   });
 
-  result[`line${i + 1}`] = iterationResult;
+  result[`match${i + 1}`] = iterationResult;
   console.log(iterationResult);
 });
 resultTemplate.value =JSON.stringify(result);
