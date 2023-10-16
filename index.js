@@ -57,7 +57,7 @@ const variableIndexes = []
 function extractVariables(line) {
   const regex = /\|[A-Za-z0-9]+\|/g;
 
-  let match;
+  var match;
   while ((match = regex.exec(line)) !== null) {
     const variable = match[0];
     const index = match.index;
@@ -70,11 +70,14 @@ function extractVariables(line) {
 
 function regexGenerator(file){
 j = variableIndexes[variableIndexes.length-1]
+console.log("Var Indecies: ", variableIndexes)
 st = j.index + j.variable.length
-end= input.substring(st,file.length-1);
+console.log("File: ", file)
+end= input.substring(st, file.length-1);
 index = 0;
 var res=[];
  variableIndexes.forEach((variable)=>{
+  console.log("Input Subs: ", input.substring(index,variable.index))
   res.push( input.substring(index,variable.index));
   index=variable.index+variable.variable.length;
 
@@ -84,23 +87,29 @@ var res=[];
  response = res.map(el=>el.replace(/\s+/g, ' ').replace(/>\s+</g, '><'))
 
  
+ console.log("Result: ", res)
+ console.log("Response: ", response)
  return [res.map((part) => part.replace(/[.*+?^${}()|[\]\\/-]/g, '\\$&').replace(/\s+/g, '\\s*')).join(`[\\W\\w\\d]*((?=.)|(?=(-->|<--)))`),response ];
 
 }
+let fileSplit;
+const indexes = []
 
 function extractValuesMain(file) {
+  fileSplit = file.split('\r')
   const [regexInPattern, allStrings] = regexGenerator(input);
-  const fileSplit = file.split('\r')
   const regex = new RegExp(regexInPattern, 'g');
-  // console.log('reg:',regex);
+  console.log('reg:',regex);
   var matches = [];
   let match;
   for(let x=0;x<fileSplit.length;x++){
     fileSplit[x] = fileSplit[x].replaceAll("/\s+/g", "")
     while ((match = regex.exec(fileSplit[x])) !== null) {
       matches.push(match[0]);
+      indexes.push((x));
     }
   }
+  console.log(allStrings);
   
 
   matches=matches.map(el=>el.replace(/>\s+</g, '><'))
@@ -124,6 +133,7 @@ inputLines.forEach((inputLine) => {
 var values;
 var variables = {};
 const matches = extractValuesMain(mainFile);
+console.log("Mathces: ", matches)
 values = matches.map((el, i) => {
   return el.split(',').filter(value => value != '');
 });
@@ -142,32 +152,51 @@ values.forEach((arr, i) => {
 });
 resultTemplate.value =JSON.stringify(variables);
 
-
-
-
-console.log(variables);
+// console.log(variables);
 var changeTemplate = document.getElementById("change").value;
 
+
+const templateChanges=[]
+//setting the variables in the new code 
 function CodeTransformer(vars,text){
     for(const match in vars){
+      let formatedRow =text;
       for(const item in vars[match]){
-        console.log(`item ${item}, key ${match}`);
         console.log(vars[match][item]);
-        text = text.replace(item,vars[match][item])
+        console.log(`item = ${item}`);
+        formatedRow = formatedRow.replace(item,vars[match][item]
+        )
       }
+      templateChanges.push("\n"+formatedRow)
     }
-  console.log(text);
+  return templateChanges
 }
+
+
 variables&&CodeTransformer(variables,changeTemplate)
+console.log(variables);
+console.log(changeTemplate);
+console.log(templateChanges);
 
+indexes.forEach((index,i)=>{
+  fileSplit[index]=templateChanges[i]
+})
+
+console.log(fileSplit);
+const Result = fileSplit.join(' ').trim()
+resultTemplate.value=Result;
 }
 
+
+
+
+// Or
 
 //**input file .done
 
 //**part of code -> extract values/params .done 
 
-//*!input how to change 
+//**input how to change 
 
 //*!return a new file
 
