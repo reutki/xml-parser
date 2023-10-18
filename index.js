@@ -1,8 +1,8 @@
-var fileElement = document.getElementById("fileInput");
+var fileInput = document.getElementById("fileInput");
 var resultTemplate = document.getElementById("resultTemplate");
 
 //reads the file
-function readFileAsync(file) {
+function readFile(file) {
 	return new Promise((resolve, reject) => {
 		const reader = new FileReader();
 
@@ -21,8 +21,8 @@ function readFileAsync(file) {
 //returns the file as text
 async function transformCode() {
 	try {
-		const file = fileElement.files[0];
-		const fileContent = await readFileAsync(file);
+		const file = fileInput.files[0];
+		const fileContent = await readFile(file);
 
 		return fileContent;
 	} catch (error) {
@@ -30,19 +30,19 @@ async function transformCode() {
 	}
 }
 
-//the main function
+//the main function that does everything -> called on Transform button
 async function main() {
-	var input = document.getElementById("parseTemplate").value;
+	var inputTemplate = document.getElementById("parseTemplate").value;
 	var mainFile = await transformCode();
+	//removes all the tabs from the file to get the correct indexes
 	mainFile = mainFile.replaceAll("\t", "");
-	// mainFile = mainFile.replaceAll("\n", "")
+//removes the spaces between the >< and replaces them with newlines
 	mainFile = clearSpaces(mainFile);
 
-	var inputCopy = clearSpaces(input)
-	//remove the newlines&tabs
-	input = input.replaceAll("\n", "");
-	input = input.replaceAll("\t", "");
-	// input = clearSpaces(input)
+	//remove the newlines&tabs from the inputTemplate
+	inputTemplate = inputTemplate.replaceAll("\n", "");
+	inputTemplate = inputTemplate.replaceAll("\t", "");
+
 
 	//removes spaces between tags
 	function clearSpaces(file) {
@@ -50,14 +50,17 @@ async function main() {
 		return lines;
 	}
 
-	//store the indexes of the variables found
+	//stores the indexes of the variables found in the inputTemplate
 	const variableIndexes = [];
 
-	//extracts variables from the code --> |variable| <--
+	//extracts variables from the code 
 	function extractVariables(line) {
+		// find all the items that are in |...| -> |variable| (combiation of letters and numbers)
+		// 1 or more letter or number ,/g -> globally
 		const regex = /\|[A-Za-z0-9]+\|/g;
 
-		var match;
+		var match;	
+		//if we have a match  it will store the variable name and the index in the variableIndexes[]
 		while ((match = regex.exec(line)) !== null) {
 			const variable = match[0];
 			const index = match.index;
@@ -65,175 +68,162 @@ async function main() {
 		}
 		return variableIndexes;
 	}
-
+	//generates the regex of the lines we are looking for to replace
 	function regexGenerator(file) {
+		//the index of each varibale found used to be missed by the slice 
 		j = variableIndexes[variableIndexes.length - 1];
-		console.log("Var Indecies: ", variableIndexes);
-		st = j.index + j.variable.length;
-		end = input.substring(st, file.length);
+		//from where it will start to cut 
+		//(+variable length => to not use the variable as well in the slice that was cut)
+		start = j.index + j.variable.length;
+		//till where it should cut the slice 
+		end = inputTemplate.substring(start, file.length);
 		index = 0;
-		var res = [];
+		//contains the code sliced without the variables
+		var slicedQuery = [];
+		
 		variableIndexes.forEach((variable) => {
-			res.push(input.substring(index, variable.index));
+			slicedQuery.push(inputTemplate.substring(index, variable.index));
 			index = variable.index + variable.variable.length;
 		});
-		res.push(end);
-		response = res.map((el) =>
-			el.replace(/\s+/g, " ").replace(/>\s+</g, "><")
+		slicedQuery.push(end);
+		//removes the spaces between the tags
+		cuttedStrings = slicedQuery.map((el) =>
+			el.replace(/>\s+</g, "><")
 		);
-		return [
-			res,
-			res
-				.map((part) =>
-					part
-						.replace(/[.*+?^${}()|[\]\\/-]/g, "\\$&")
-						.replace(/\s+/g, "\\s*")
-				)
-				.join(`\\d`),
-			response,
-		];
+
+		return [slicedQuery, cuttedStrings];
 	}
-	let fileSplit;
-	const indexes = [];
-	const indecies = [];
 
+	//the main file but is splitted by lines in an array
+	let mainFileSplitted;
+	const linesFoundIndexes = [];
+	//extracts the values from the file passed in 
 	function extractValuesMain(file) {
-		fileSplit = file.split("\n");
-		// fileSplit = fileSplit.replaceAll("/\s+/g", "")
-		// fileSplit = file
+		
+				//splitting to get the indexes of the lines
+				mainFileSplitted = file.split("\n");
 
+				const [slicedQuery, cuttedStrings] = regexGenerator(inputTemplate);
 
-		const [res, regexInPattern, cuttedStrings] = regexGenerator(input);
+				//contains the regex of each line from the inputTemplate 
+				let splittedInputLines = clearSpaces(slicedQuery.map((str) => str.replaceAll(/[.*+?^${}()|[\]\\/-]/g, "\\$&").replaceAll(/\s+/g, "\\s*")).join(".*")).split("\n")
+			
+				//the first line that contains regex in it  
+				let firstRegexLine = new RegExp(splittedInputLines[0], "g");
+			
+				//we go through all the lines of the main file
+				for (let lineIndex = 0; lineIndex < mainFileSplitted.length; lineIndex++) {
+					//we check if it has passed all the regex lines from the splittedInputLines
+					let passedAllLinesRegex = true;
+					//will contain the indexes of the lines where it has passed the regex 
+					let linesArr = [];
 
-		let splittedInputLines = clearSpaces(res.map((str) => str.replaceAll(/[.*+?^${}()|[\]\\/-]/g, "\\$&").replaceAll(/\s+/g, "\\s*")).join(".*")).split("\n")
-
-		let firstRegexLine = new RegExp(splittedInputLines[0], "g");
-		console.log(firstRegexLine);
-		for (let lineIndex = 0; lineIndex < fileSplit.length; lineIndex++) {
-			let allIncludes = true;
-			let lineArr = [];
-			if (firstRegexLine.test(fileSplit[lineIndex])) {
-				// console.log(fileSplit[lineIndex])
-
-				for (
-					let strIndex = 0;
-					strIndex < splittedInputLines.length;
-					strIndex++
-				) {
-					let regexLineInput = new RegExp(
-						splittedInputLines[strIndex],
-						"g"
-					);
-
-					if (!regexLineInput.test(fileSplit[lineIndex + strIndex])) {
-						console.log(fileSplit[lineIndex + strIndex]);
-						console.log(splittedInputLines[strIndex]);
-						lineArr = [];
-						allIncludes = false;
-						break;
-					} else {
-						lineArr.push(lineIndex + strIndex);
+					if (firstRegexLine.test(mainFileSplitted[lineIndex])) {
+					//if it passes the first regex from the splittedInputLines array of regexes, it will loop through it 
+					for (let strIndex = 0; strIndex < splittedInputLines.length; strIndex++) {
+						//contains the regexes that it has to go through and check
+						let regexLineInput = new RegExp(splittedInputLines[strIndex], "g");
+					//if it does not pass it will go to the next line in the file 
+						if (!regexLineInput.test(mainFileSplitted[lineIndex + strIndex])) {
+								linesArr = [];
+								passedAllLinesRegex = false;
+								break;
+							} 
+						else {
+							//will add the line index to the array linesArr
+							linesArr.push(lineIndex + strIndex);
+						}
+					}
+					//if it passes all the lines from the linesArr, it will add the linesArr to the linesFoundIndexes
+						if (passedAllLinesRegex) {
+							linesFoundIndexes.push(linesArr);
+							console.log(linesArr)
+						}
 					}
 				}
-				if (allIncludes) {
-					indecies.push(lineArr);
+				
+				//will contain all the values at the indexes that were found
+				let unsplitedValues = []
+				//finds the lines where we should find the values
+				for (let i=0; i < linesFoundIndexes.length; i++) {
+					unsplitedValues.push(linesFoundIndexes[i].map((position) => {
+						return mainFileSplitted[position]
+					}).join(""))
+
 				}
-			}
-		}
-
-		console.log("Found Line Indecies: ", indecies);
-		let joinedOriginalLines = []
-		for (let i=0; i < indecies.length; i++) {
-			joinedOriginalLines.push(indecies[i].map((pos) => {
-				return fileSplit[pos]
-			}).join(""))
-
-		}
-
-
-		// const regex = new RegExp(regexInPattern, "g");
-		// console.log("reg:", regex);
-		// var matches = [];
-		// let match;
-		// for (let x = 0; x < fileSplit.length; x++) {
-		// 	fileSplit[x] = fileSplit[x].replaceAll("/s+/g", "");
-		// 	while ((match = regex.exec(fileSplit)) !== null) {
-		// 		matches.push(match[0]);
-		// 		indexes.push(x);
-		// 	}
-		// }
-
-		// matches = matches.map((el) => el.replace(/>\s+</g, "><"));
-		for (let k=0; k < joinedOriginalLines.length; k++)
-			for (let i = 0; i < cuttedStrings.length; i++) {
-			joinedOriginalLines[k] = joinedOriginalLines[k].replace(cuttedStrings[i], ",");
-		}
-
-
-		return joinedOriginalLines;
+				//extracts the values from the lines
+				for (let k=0; k < unsplitedValues.length; k++)
+					for (let i = 0; i < cuttedStrings.length; i++) {
+					unsplitedValues[k] = unsplitedValues[k].replace(cuttedStrings[i], ",");
+				}
+		return unsplitedValues;
 	}
-	const inputLines = input.split("\n");
 
-	inputLines.forEach((inputLine) => {
-		extractVariables(inputLine);
+	//the code where we set the vars splitted
+	const inputLines = inputTemplate.split("\n");
+
+	inputLines.forEach((line) => {
+		extractVariables(line);
 	});
-
-	var values;
+	
+	
+	//contains all the matches and their indexes where they are
 	var variables = {};
+
 	const matches = extractValuesMain(mainFile);
-	values = matches.map((el, i) => {
+	//an array of arrays that contains the items it has to look for
+	var values = matches.map((el, i) => {
+		//removes the items that are ',' or empty 
 		return el.split(",").filter((value) => value != "");
 	});
 
+	//will create an object that will contain {matchX: '|variable|':variableIndex}
 	values.forEach((arr, i) => {
 		const iterationResult = {};
 
-		arr.forEach((str, t) => {
+		arr.forEach(() => {
 			variableIndexes.forEach((variable, k) => {
 				iterationResult[`${variable.variable}`] = arr[k];
 			});
 		});
-
 		variables[`match${i + 1}`] = iterationResult;
 	});
-
-	console.log(variables)
-	resultTemplate.value = JSON.stringify(variables);
-
+	//the template of how to modify the lines that were found
 	var changeTemplate = document.getElementById("change").value;
 
 	const templateChanges = [];
-	//setting the variables in the new code
+	//setting the variables in the new transformed code
 	function CodeTransformer(vars, text) {
 		for (const match in vars) {
 			let formatedRow = text;
 			for (const item in vars[match]) {
 				formatedRow = formatedRow.replace(item, vars[match][item]);
 			}
-			templateChanges.push( formatedRow);
+			templateChanges.push(formatedRow);
 		}
 		console.log("new lines (Template changes): ", templateChanges)
-		console.log("SPLITTED FILE: ", fileSplit)
+		console.log("SPLITTED FILE: ", mainFileSplitted)
 		return templateChanges;
 	}
 
 	variables && CodeTransformer(variables, changeTemplate);
 
 
-
-	for (let i=0; i < indecies.length; i++) {
-		indecies[i].forEach((childIndex)=>{
-			if(indecies[i].indexOf(childIndex)==0){
-				fileSplit.splice(indecies[i][0], indecies[i].length, templateChanges[i])
+//TODO Fix this code to replace correctly the lines.
+	for (let i=0; i < linesFoundIndexes.length; i++) {
+		linesFoundIndexes[i].forEach((childIndex)=>{
+			if(linesFoundIndexes[i].indexOf(childIndex)==0){
+				mainFileSplitted.splice(linesFoundIndexes[i][0], linesFoundIndexes[i].length, templateChanges[i])
 			}
 			else{
-				fileSplit.splice(indecies[i][indecies[i].indexOf(childIndex)], indecies[i].length, '')
+				
+				mainFileSplitted.splice(linesFoundIndexes[i][linesFoundIndexes[i].indexOf(childIndex)], linesFoundIndexes[i].length, '')
 			}
 		})
 	}
 
-	console.log(fileSplit.join("\n"))
-	const Result = fileSplit.join(" ").trim();
+	console.log(mainFileSplitted.join("\n"))
+	const Result = mainFileSplitted.join(" ").trim();
 	resultTemplate.value = Result;
 }
 
@@ -243,10 +233,10 @@ async function main() {
 // change '><' to >\n<
 // Split input line by \n
 // input how to change
-// replace
-// ?choose how to store indecies;
+// ?choose how to store indexes;
+// refractoring
 
 // TODO 
+// replace correctly
 // save in file
-// refractoring
 // remember number of spaces and tabs
