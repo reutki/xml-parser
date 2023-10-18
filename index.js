@@ -210,22 +210,26 @@ async function main() {
 			for (const item in vars[match]) {
 				formatedRow = formatedRow.replace(item, vars[match][item]);
 			}
-			templateChanges.push("\n" + formatedRow);
+			templateChanges.push( formatedRow);
 		}
-		console.log("Template: ", templateChanges)
+		console.log("new lines (Template changes): ", templateChanges)
 		console.log("SPLITTED FILE: ", fileSplit)
 		return templateChanges;
 	}
 
 	variables && CodeTransformer(variables, changeTemplate);
 
+
+
 	for (let i=0; i < indecies.length; i++) {
-		// TODO find a way to replace but without changing index order
-		// * issue: now it deletes old values and replaces with new but index are also changed
-		// indecies[i][0]: first index that shows where starts string that we want to replace in main file
-		// first param: startIndex; second param: numbers of deletes; third param: to what replace
-		// console.log(fileSplit[indecies[i][0]])
-		fileSplit.splice(indecies[i][0], indecies[i].length, templateChanges[i])
+		indecies[i].forEach((childIndex)=>{
+			if(indecies[i].indexOf(childIndex)==0){
+				fileSplit.splice(indecies[i][0], indecies[i].length, templateChanges[i])
+			}
+			else{
+				fileSplit.splice(indecies[i][indecies[i].indexOf(childIndex)], indecies[i].length, '')
+			}
+		})
 	}
 
 	console.log(fileSplit.join("\n"))
@@ -239,10 +243,10 @@ async function main() {
 // change '><' to >\n<
 // Split input line by \n
 // input how to change
-
-// TODO 
 // replace
 // ?choose how to store indecies;
+
+// TODO 
 // save in file
 // refractoring
 // remember number of spaces and tabs
