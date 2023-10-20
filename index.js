@@ -402,10 +402,15 @@ async function main() {
 
 	const Result = processingArr.join(" ").trim();
 	resultTemplate.value = Result;
-  downloadBtn.style.display = "block";
-  downloadBtn.addEventListener("click", () => download(fileName, Result));
+	downloadBtn.style.display = "block";
 
-  //allows to download the file after the result was made
+	if (!downloadBtn.hasEventListener) {
+		downloadBtn.addEventListener("click", () => {
+			download(fileName, Result)
+			downloadBtn.hasEventListener = true
+		});
+	}
+	//allows to download the file after the result was made
   function download(filename, text) {
     var element = document.createElement("a");
     element.setAttribute(
@@ -429,7 +434,6 @@ async function main() {
 // change '><' to >\n<
 // Split input line by \n
 // input how to change
-// ?choose how to store indexes;
 // refractoring
 // save in file
 // remember number of spaces and tabs
