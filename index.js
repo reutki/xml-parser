@@ -290,19 +290,45 @@ async function main() {
 	for (let i=0; i < initialTabStrings.length; i++) {
 		let indeciesInMainFile = []
 		// traversing each string from array
+		// let lastIndecies = totalIndecies[totalIndecies.length-1] == undefined ? 0 : totalIndecies[totalIndecies.length-1] 
+		// let latestIndex = lastIndecies[lastIndecies.length-1] == undefined ? 0 : lastIndecies[lastIndecies.length-1]
+		
+		let startIndex = 0
 		for (let j=0; j < initialTabStrings[i].length; j++) {
-			// ! May be problems if first line in search string is not unique like <xsl:when>
-			// TODO check if there is problem
 			// find index of line using indexOf
 			// cause the different lines can appear before the line that is needed
 			// we find the first occurence after the latest element
 			// if there is no latest element we start finding from 0 
+			
+			let lastArr = totalIndecies[totalIndecies.length-1]
+			let lastIndex = 0
+
+			if (indeciesInMainFile.length > 0) {
+				// indecies not empty
+				let lastIndexMain = indeciesInMainFile[indeciesInMainFile.length-1] 
+				if (lastIndexMain == undefined) {
+					// last index main is undefined
+					startIndex = 0
+				} else {
+					startIndex = lastIndexMain
+				}
+			} else if (lastArr != undefined) {
+				// last arr defined
+				lastIndex = lastArr[lastArr.length-1]
+				if (lastIndex != undefined) {
+					// last index defined
+					startIndex = lastIndex
+				} else {
+					// last index undefined
+					startIndex = 0
+				}
+			}
+
 			indeciesInMainFile
 				.push(
 					splittedMainFile.indexOf( 
 						initialTabStrings[i][j],
-						indeciesInMainFile[indeciesInMainFile.length-1] == undefined 
-						? 0 : indeciesInMainFile[indeciesInMainFile.length-1]
+						startIndex
 						)
 					)
 		}
@@ -320,12 +346,6 @@ async function main() {
 			currentArr.push(splittedMainFile[totalIndecies[i][j]])
 		}
 		uniqueStrings.push(currentArr)
-	}
-
-	for (let i=0; i < uniqueStrings.length; i++) {
-		for (let j=0; j < uniqueStrings[i].length; j++){
-			console.log(uniqueStrings[i][j] == initialTabStrings[i][j])
-		}
 	}
 
 	const tabsFromMain = []
@@ -375,12 +395,8 @@ async function main() {
 	endIndex = splittedMainFile.length
 
 	processingArr.push(...splittedMainFile.slice(startIndex, endIndex))
-	
-	console.log(processingArr.join(" ").trim())
-	
 
-	// console.log(mainFileSplitted.join("\n"))
-	const Result = mainFileSplitted.join(" ").trim();
+	const Result = processingArr.join(" ").trim();
 	resultTemplate.value = Result;
 }
 
@@ -394,6 +410,6 @@ async function main() {
 // refractoring
 // save in file
 // remember number of spaces and tabs
+// replace correctly
 
 // TODO 
-// replace correctly
