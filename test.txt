@@ -1,0 +1,46 @@
+test1: 
+<xsl:variable name="|value|">
+	<xsl:choose>
+		<xsl:when test="|text|">
+			<xsl:text>|log|</xsl:text>
+		</xsl:when>
+		<xsl:otherwise>
+			<xsl:text>|info|</xsl:text>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:variable>
+
+change1:
+<DIV value="|value|">|text| Info: |info| Log: |log|</DIV>
+
+test2: 
+<xsl:when test="//CBA911-BILANCI[|id|]/CBA911-|suffix| = '|text|'">
+	<xsl:attribute name="|attribute|">|path|</xsl:attribute>
+</xsl:when>
+
+change2: 
+<DIV id="|id|" attr="|attribute|">
+  <div src="|path|"> |text| |suffix| </div>
+</DIV>
+
+test3:
+<xsl:variable name="|name|"><xsl:if test="//CBA911-BILANCI[|id|]/CBA911-IO-PER-FI/CBA911-A-FI != ''">|text|</xsl:if></xsl:variable>
+
+change3:
+<DIV> |name| |id| |text| <DIV>
+
+test4: 
+<xsl:choose>
+	<xsl:when test="|variable| = '|val|'">
+		<xsl:text>|text|</xsl:text>
+	</xsl:when>
+	<xsl:otherwise>
+		<xsl:text>|input|</xsl:text>
+	</xsl:otherwise>
+</xsl:choose>
+
+change4:
+<DIV |input|="|text|"> |variable| |val| </DIV>
+
+
+
