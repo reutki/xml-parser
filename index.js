@@ -12,8 +12,7 @@ var templateChanges = [];
 
 
 downloadBtn.addEventListener("click", () => {
-	download(...getData());
-	downloadBtn.hasEventListener = true;
+	Result!==''&&download(fileName,Result,extension);
 });
 
 //reads the file
@@ -158,11 +157,6 @@ function extractValuesMain(file, inputTemplate) {
 	return unsplitedValues;
 }
 
-// return processed data
-function getData() {
-	return [fileName, Result, extension]
-}
-
 //allows to download the file after the result was made
 function download(filename, text, extension) {
 	var element = document.createElement("a");
@@ -180,7 +174,7 @@ function download(filename, text, extension) {
 	document.body.removeChild(element);
 }
 
-
+//returns the number of tabs in a line
 function getTabs(str) {
 	const tabs = str.match(/\t/g);
 	return tabs ? tabs.length : 0;
@@ -191,7 +185,7 @@ function putTabsInFront(str, minimalTab) {
 	return Array(minimalTab).fill("\t").join("") + str + "\n";
 }
 
-// check if string is substring of code block
+// check if string is substring(is included) of code block
 function isSubstr(str, substr) {
 	return substr !== "" && str.includes(substr);
 }
