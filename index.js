@@ -9,7 +9,8 @@ var mainFileSplitted, originalMainLines, lines, initialTabStrings, totalIndecies
 var variableIndexes = [];
 var linesFoundIndexes = [];
 var templateChanges = [];
-
+var splittedInputLines
+var firstRegexLine
 
 downloadBtn.addEventListener("click", () => {
 	Result!==''&&download(fileName,Result,extension);
@@ -46,6 +47,10 @@ async function transformCode() {
 	}
 }
 
+function mean(arr) {
+	return arr.reduce((x, y) => x+y) / arr.length
+}
+
 //removes spaces between tags
 function clearSpaces(file) {
 	let lines = file.replaceAll(/>\s*</g, ">\n<");
@@ -76,7 +81,7 @@ function extractValuesMain(file, inputTemplate) {
 	const [slicedQuery, cuttedStrings] = regexGenerator(inputTemplate);
 
 	//contains the regex of each line from the inputTemplate
-	let splittedInputLines = clearSpaces(
+	splittedInputLines = clearSpaces(
 		slicedQuery
 			.map((str) =>
 				str
@@ -86,7 +91,7 @@ function extractValuesMain(file, inputTemplate) {
 			.join(".*")
 	).split("\n");
 	//the first line that contains regex in it
-	let firstRegexLine = new RegExp(splittedInputLines[0], "g");
+	firstRegexLine = new RegExp(splittedInputLines[0]);
 
 	//we go through all the lines of the main file
 	for (
@@ -244,13 +249,15 @@ function getStrById() {
 // get strings in their initial states with tabs
 function getOriginalStrings() {
 	let initialTabStrings = [];
+	let regex = new RegExp(splittedInputLines[0]);
+
 	// traversing each line from main file
 	for (let mainLine = 0; mainLine < originalMainLines.length; mainLine++) {
 		// traversing each line from the original lines (that can be code blocks also)
 		let trimmedLine = originalMainLines[mainLine].trim();
 		for (let line = 0; line < lines.length; line++) {
 			// check if line from main file is substring of line (code block)
-			if (isSubstr(lines[line], trimmedLine)) {
+			if (isSubstr(lines[line], trimmedLine) && regex.test(trimmedLine)) {
 				let allChecked = 0;
 				let checkedStrings = [];
 
@@ -338,10 +345,9 @@ function getIndeciesOfOriginalStrings() {
 				)
 			);
 		}
-
 		totalIndecies.push(indeciesInMainFile);
 	}
-
+	
 	return totalIndecies;
 }
 
@@ -360,7 +366,6 @@ function generateFinalLines(minimalTab) {
 		endIndex = arr[0];
 
 		processingArr.push(...originalMainLines.slice(startIndex, endIndex));
-
 		// put in front of resulting string tabs
 		let currentNewString = templateChanges[i].split("\n");
 		if (currentNewString.length != 1) {
@@ -373,12 +378,12 @@ function generateFinalLines(minimalTab) {
 				minimalTab
 			);
 		}
-
 		processingArr.push(currentNewString);
-
+		
 		// start index is the last string that matches template
 		startIndex = arr[arr.length - 1] + 1;
 	});
+
 
 	// finding the start index that is the latest index in array (latest occurency) for final push
 	let innerLastArr = totalIndecies[totalIndecies.length - 1];
@@ -461,8 +466,8 @@ async function main() {
 				tabsFromMain.push(tabs);
 			});
 		});
-
-	minimalTab = Math.min(...tabsFromMain);
+	
+	minimalTab = Math.round(mean(tabsFromMain));
 
 	var processingArr = generateFinalLines(minimalTab);
 
