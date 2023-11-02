@@ -181,9 +181,14 @@ function download(filename, text, extension) {
 
 //returns the number of tabs in a line
 function getTabs(str) {
+	if (str.match(/^ {4}/gm)) {
+	//   str = str.replace(/^ {4}/gm, "\t");
+	   str = str.replace(/^ {4}/gm, (match) => '\t'.repeat(match.length / 4));
+
+	}
 	const tabs = str.match(/\t/g);
 	return tabs ? tabs.length : 0;
-}
+  }
 
 // inserts tabs in front of string
 function putTabsInFront(str, minimalTab) {
@@ -431,8 +436,9 @@ async function main() {
 	//an array of arrays that contains the items it has to look for
 	var values = matches.map((el) => {
 		//removes the items that are ',' or empty
-		return el.split(",").filter((value) => value != "");
+		return el.split(",").filter((value) => value !== "" && !/[\s\t]+/g.test(value));
 	});
+	console.log(values);
 
 	//will create an object that will contain {matchX: '|variable|':variableIndex}
 	values.forEach((arr, i) => {

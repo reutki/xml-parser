@@ -42,5 +42,9 @@ test4:
 change4:
 <DIV |input|="|text|"> |variable| |val| </DIV>
 
+test 5:
 
+FG303-|var1|=<xsl:value-of select="//FG303-|var2|"/>;
 
+change 5: 
+<xsl:value-of select="concat('FG303-|var1|',//FG303-|var2|,';')"/>
