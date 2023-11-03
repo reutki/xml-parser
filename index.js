@@ -53,7 +53,8 @@ function mean(arr) {
 
 //removes spaces between tags
 function clearSpaces(file) {
-	let lines = file.replaceAll(/>\s*</g, ">\n<");
+	//>\n[\W\S]+\n<
+	let lines = file.replaceAll(/>[\s]*</g, ">\n<");
 	return lines;
 }
 
@@ -79,7 +80,7 @@ function extractValuesMain(file, inputTemplate) {
 	mainFileSplitted = file.split("\n");
 
 	const [slicedQuery, cuttedStrings] = regexGenerator(inputTemplate);
-
+	console.log(slicedQuery)
 	//contains the regex of each line from the inputTemplate
 	splittedInputLines = clearSpaces(
 		slicedQuery
@@ -92,7 +93,7 @@ function extractValuesMain(file, inputTemplate) {
 	).split("\n");
 	//the first line that contains regex in it
 	firstRegexLine = new RegExp(splittedInputLines[0]);
-
+	console.log(splittedInputLines)
 	//we go through all the lines of the main file
 	for (
 		let lineIndex = 0;
@@ -122,6 +123,8 @@ function extractValuesMain(file, inputTemplate) {
 						mainFileSplitted[lineIndex + strIndex]
 					)
 				) {
+					console.log("Regex:",regexLineInput)
+					console.log("Line:", mainFileSplitted[lineIndex+strIndex])
 					linesArr = [];
 					passedAllLinesRegex = false;
 					break;
@@ -230,7 +233,7 @@ function CodeTransformer(vars, text) {
 	for (const match in vars) {
 		let formatedRow = text;
 		for (const item in vars[match]) {
-			formatedRow = formatedRow.replace(item, vars[match][item]);
+			formatedRow = formatedRow.replaceAll(item, vars[match][item]);
 		}
 		templateChanges.push(formatedRow);
 	}
@@ -254,6 +257,7 @@ function getStrById() {
 // get strings in their initial states with tabs
 function getOriginalStrings() {
 	let initialTabStrings = [];
+	let allIndecies = []
 	let regex = new RegExp(splittedInputLines[0]);
 
 	// traversing each line from main file
@@ -265,6 +269,7 @@ function getOriginalStrings() {
 			if (isSubstr(lines[line], trimmedLine) && regex.test(trimmedLine)) {
 				let allChecked = 0;
 				let checkedStrings = [];
+				let currentIndex = []
 
 				// cause we take only one line from main and string that can be multiline block
 				// we should traverse nearest lines after current line to check if block are the same
@@ -283,23 +288,27 @@ function getOriginalStrings() {
 							checkedStrings.push(
 								originalMainLines[blockIndex]
 							);
+							currentIndex.push(blockIndex)
 							break;
 						}
 						// allChecked counts how many lines from main file correspond
 						// to multiline block
 						allChecked++;
 						checkedStrings.push(originalMainLines[blockIndex]);
+						currentIndex.push(blockIndex)
 					}
 				}
 
 				// if all lines correspond code block pushes it in array
 				if (allChecked == linesFoundIndexes[0].length) {
 					initialTabStrings.push(checkedStrings);
+					allIndecies.push(currentIndex)
+					break
 				}
 			}
 		}
 	}
-
+	console.log(allIndecies)
 	return initialTabStrings;
 }
 
@@ -320,7 +329,6 @@ function getIndeciesOfOriginalStrings() {
 
 			let lastArr = totalIndecies[totalIndecies.length - 1];
 			let lastIndex = 0;
-
 			if (indeciesInMainFile.length > 0) {
 				// indecies not empty
 				let lastIndexMain =
@@ -341,6 +349,25 @@ function getIndeciesOfOriginalStrings() {
 					// last index undefined
 					startIndex = 0;
 				}
+			}
+
+
+			// console.log(initialTabStrings[i][j] === originalMainLines[338])
+			// console.log(initialTabStrings[i][j] === originalMainLines[343])
+			// console.log(initialTabStrings[i][j] === originalMainLines[369])
+
+			if (initialTabStrings[i][j] == originalMainLines[338]) {
+				console.log("More:",startIndex > 338)
+				console.log(originalMainLines.indexOf(initialTabStrings[i][j], startIndex))
+			}
+			if (initialTabStrings[i][j] == originalMainLines[343]) {
+				console.log("More:", startIndex > 343)
+
+				console.log(originalMainLines.indexOf(initialTabStrings[i][j], startIndex))
+			}
+			if (initialTabStrings[i][j] == originalMainLines[369]) {
+				console.log("More:",startIndex> 369)
+				console.log(originalMainLines.indexOf(initialTabStrings[i][j], startIndex))
 			}
 
 			indeciesInMainFile.push(
@@ -428,7 +455,6 @@ async function main() {
 		extractVariables(line);
 	});
 
-
 	//contains all the matches and their indexes where they are
 	var variables = {};
 
@@ -438,7 +464,6 @@ async function main() {
 		//removes the items that are ',' or empty
 		return el.split(",").filter((value) => value !== "" && !/[\s\t]+/g.test(value));
 	});
-	console.log(values);
 
 	//will create an object that will contain {matchX: '|variable|':variableIndex}
 	values.forEach((arr, i) => {
