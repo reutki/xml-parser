@@ -30,20 +30,14 @@ change3:
 <DIV> |name| |id| |text| <DIV>
 
 test4: 
-<xsl:choose>
-	<xsl:when test="|variable| = '|val|'">
-		<xsl:text>|text|</xsl:text>
-	</xsl:when>
-	<xsl:otherwise>
-		<xsl:text>|input|</xsl:text>
-	</xsl:otherwise>
-</xsl:choose>
+<xsl:if test="//FG300-|where|">
+<xsl:value-of select="//FG300-|where|"/> -
+</xsl:if>
 
 change4:
-<DIV |input|="|text|"> |variable| |val| </DIV>
+<DIV>|where|</DIV>
 
 test 5:
-
 FG303-|var1|=<xsl:value-of select="//FG303-|var2|"/>;
 
 change 5: 
