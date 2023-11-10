@@ -4,10 +4,7 @@ XML Parser is a JavaScript application that allows you to replace lines in a cer
 
 ## Installation
 
-Application itself doesn't require any installation. However, if you want to run tests you have to install **Selenium** and other dependecies. To install dependencies run:
-```shell
-npm install
-``` 
+Application itself doesn't require any installation. It is running on vanilla JS.
 
 ## Run
 For the work was used a extensions from VS Code - Live Server. HTML file was launched through it, which started JavaScript code.
