@@ -157,7 +157,7 @@ function regexGenerator(file) {
 		el = el.replace(/>\s*</g, ">\\s*<") // replace spaces with its regex represention
 
 		// ex: >  0 < becomes >\s*0\s*<
-		el = el.replace(/(>)\s*([-0]+)\s*(<)/g, "$1\\s*$2\\s*$3");
+		el = el.replace(/(>)\s*(\W+)\s*(<)/g, "$1\\s*$2\\s*$3");
 
 		return el
 	})

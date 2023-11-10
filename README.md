@@ -27,14 +27,6 @@ Here we describe important features of the application that may create a differe
 * The **application reads the tabulation** in the code in the original file. If spaces are used instead of tabs in the original file, it will prevent the program from defining the correct variables. In the worst case, the **program will return a replacement string with spaces** instead of variables;
 * Be careful when you enter your code. Enter it as you would like it to appear in the final file. Extra spaces are removed in the lines you enter, but tabs and new even blank lines are retained. **Remove unnecessary tabs and lines**.
 
-## Tests
-Application uses **Selenium** for testing make sure to adapt your `config.ini` file according to your preferences. `clientAddr` is address on which application is running on and `serverAddr` - to which address you want to run **Selenium**. Such file were used as tested in application: `another.xsl`, `FG303.xsl`, `teste.xml`. Tests are **hardcoded** so if you want to add your own test you should firstly escape **special characters** in string as well as **spaces, tabs and new lines**. Second thing you should know **index** of string what you want to check in file. You do not have to put all indecies of lines in test if they go sequentially (one by one), just put them in array.
-To run tests use:
-```shell
-node test.js
-```
-Do not forget about chrome driver. You can found it on [Google Chrome Labs](https://googlechromelabs.github.io/chrome-for-testing/).
-
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first
