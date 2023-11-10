@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./styles.css">
+    <title>Code Formatter</title>
+</head>
+
+<body>
+    <label for="fileInput">Where to look for</label>
+    <input name="fileInput" id="fileInput" type="file" />
+    <label for="parseTemplate">
+        Set the vars:
+    </label>
+    <textarea id="parseTemplate" name="parseTemplate"></textarea>
+    <label for="change">Change to</label>
+    <textarea name="change" id="change"></textarea>
+    <button class="tfmBtn" id="tfmBtn" onclick="main()">Transform</button>
+    <label for="resultTemplate">
+        Result:
+    </label>
+    <textarea id="resultTemplate" name="resultTemplate"></textarea>
+    <button id="downloadBtn">Download</button>
+
+
+</body>
+<script src='./index.js'></script>
+
+</html>
