@@ -1,0 +1,7 @@
+.prettierrc
+.hintrcc
+node_modules
+config.json
+package-lock.json
+package.json
+tests
